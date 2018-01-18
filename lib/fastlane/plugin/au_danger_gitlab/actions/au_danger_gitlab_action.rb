@@ -6,13 +6,16 @@ module Fastlane
     class AuDangerGitlabAction < Action
       def self.run(params)
         # UI.message("The au_danger_gitlab plugin is working!")
-        remotes = sh("git ls-remote -q origin merge-requests\\*head|grep #{ENV['CI_COMMIT_SHA']} || echo 'not a merge request' ")
+        remotes = sh("git ls-remote -q origin merge-requests\\*head|grep #{ENV['CI_COMMIT_SHA']}")
         match_data = /.*merge-requests\/([0-9]+)\//.match(remotes)
         if match_data && match_data[1]
           ENV['CI_MERGE_REQUEST_ID'] = match_data[1] 
-        else 
-          UI.message("Not a merge request, exiting...")
+          UI.message("Adding `CI_MERGE_REQUEST_ID` to ENVs")
+          return true
         end
+
+        UI.message("Not a merge request, exiting...")
+        return false        
       end
 
       def self.description
